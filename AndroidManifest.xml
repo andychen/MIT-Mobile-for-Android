@@ -190,7 +190,7 @@
 		<activity android:name=".about.AboutMITActivity" />
 		<activity android:name=".about.AboutCreditsActivity" />
 		
-		<receiver android:name=".alerts.NotificationsAlarmReceiver"  class=".NotificationsAlarmReceiver" />
+		<receiver android:name=".alerts.NotificationsAlarmReceiver" class=".NotificationsAlarmReceiver"/>
 		<!-- 
 		<service android:name=".UpdateService"   class=".UpdateService"  />
 		<service android:name=".UpdateService"  android:enabled="true"  >
@@ -208,6 +208,8 @@
 	    <provider android:name=".WebImageCacheProvider" android:authorities="edu.mit.mitmobile2.WebImageCacheProvider" />   	          	           
     
 		<activity android:name=".PrefsActivity"></activity>
+		<uses-library android:required="true" android:name="com.google.android.maps"></uses-library>
+		<activity android:name=".shuttles.ShuttlesActivity2"></activity>
 </application>
 
  		

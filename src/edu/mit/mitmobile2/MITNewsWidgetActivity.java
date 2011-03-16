@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -15,17 +16,14 @@ import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
-import android.gesture.Prediction;
 import android.gesture.GestureOverlayView.OnGesturePerformedListener;
+import android.gesture.Prediction;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.AndroidException;
 import android.util.Log;
 import android.view.Display;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -35,9 +33,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import edu.mit.mitmobile2.about.AboutActivity;
-import edu.mit.mitmobile2.about.BuildSettings;
 import edu.mit.mitmobile2.alerts.NotificationsHelper;
 import edu.mit.mitmobile2.classes.ClassesModule;
 import edu.mit.mitmobile2.emergency.EmergencyModule;
@@ -48,10 +44,10 @@ import edu.mit.mitmobile2.news.NewsDetailsActivity;
 import edu.mit.mitmobile2.news.NewsHomeItem;
 import edu.mit.mitmobile2.news.NewsListSliderActivity;
 import edu.mit.mitmobile2.news.NewsModel;
-import edu.mit.mitmobile2.news.NewsModule;
 import edu.mit.mitmobile2.objs.NewsItem;
 import edu.mit.mitmobile2.people.PeopleModule;
 import edu.mit.mitmobile2.shuttles.ShuttlesModule;
+import edu.mit.mitmobile2.shuttles.ShuttlesModule2;
 import edu.mit.mitmobile2.tour.TourModule;
 
 public class MITNewsWidgetActivity extends Activity implements OnGesturePerformedListener, OnSharedPreferenceChangeListener {
@@ -224,7 +220,7 @@ public class MITNewsWidgetActivity extends Activity implements OnGesturePerforme
 		findViewById(R.id.homeTopNewsTV).setOnClickListener(moreTopNewsClickListener);
 		
 		Module[] modules = new Module[] {
-			new NewsModule(),
+			new ShuttlesModule2(),
 			new ShuttlesModule(),
 			new MapsModule(),
 			new EventsModule(),

@@ -5,7 +5,7 @@ import sys
 import build_settings
 import time
 
-VERSION_NUMBER = "2.0.1"
+VERSION_NUMBER = "AndrewChen"
 
 # a wrapper to make it harder to silently ignore errors
 def shell(command, silent=False):
@@ -81,7 +81,8 @@ def build_source(builder, tag, fresh_repository):
    inital_cwd = os.getcwd()
    print inital_cwd
    if not tag:
-      build_id = shell("git rev-parse HEAD", True)     
+      build_id = "6bd634"
+      #build_id = shell("git rev-parse HEAD", True)     
       build_source = "local code"
    else:
       if fresh_repository:
