@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:id="@+id/shuttlesLL"
+	android:background="@drawable/main_repeat"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<edu.mit.mitmobile2.TitleBar
+		android:text="ShuttleSmart"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+
+	<LinearLayout
+		android:orientation="vertical"
+		android:id="@+id/stopLL"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+
+		<LinearLayout
+			android:orientation="vertical"
+			android:id="@+id/directionLL"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+
+			<ListView
+				android:id="@+id/shuttleLV"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:background="#ffffffff"
+				android:visibility="gone"
+				style="@style/Lists" />
+
+			<edu.mit.mitmobile2.FullScreenLoader
+				android:id="@+id/shuttleSmartLoader"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent" />
+				<!-- android:layout_height="250dip" /> -->
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</LinearLayout>

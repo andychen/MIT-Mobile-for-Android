@@ -10,9 +10,9 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Handler;
 import android.util.Log;
-
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.objs.RouteItem;
 import edu.mit.mitmobile2.objs.RouteItem.Stops;
@@ -76,6 +76,16 @@ public class ShuttleModel {
 	
 	public static RouteItem getUpdatedRoute(RouteItem routeItem) {
 		return getRoute(routeItem.route_id);
+	}
+	
+	//Returns unique stops; disregards route info.
+	public static List<Stops> getStops() {
+		ArrayList<Stops> results = new ArrayList<Stops>();
+		
+		for (List<Stops> l : stops.values()){
+			results.add(l.get(0));
+		}
+		return results;
 	}
 	
 	public static List<Stops> getStops(String stopId) {
@@ -188,13 +198,33 @@ public class ShuttleModel {
 		);		
 	}
 	
+	public static List<String> getClosestStopIds(double lat, double lon){
+		lat = 42.351432;	//TODO: Update this.
+		lon = -71.089321;
+		
+		float[] results = new float[1];
+		List<Stops> allStops = getStops();
+		float shortestDist = Float.MAX_VALUE;
+		ArrayList<String> shortestTitles = new ArrayList<String>();
+		
+		for (Stops s : allStops) {
+			Location.distanceBetween(lat, lon, Double.parseDouble(s.lat), Double.parseDouble(s.lon), results);
+			if (results[0] < shortestDist){
+				shortestTitles.clear();
+				shortestTitles.add(s.id);
+				shortestDist = results[0];
+			}
+		}
+		return shortestTitles;
+	}
+	
 	public static void fetchStopDetails(final String stopId, final Handler handler) {
 		HashMap<String, String> stopInfoParameters = new HashMap<String, String>();
 		stopInfoParameters.put("command", "stopInfo");
 		stopInfoParameters.put("id", stopId);
 		
 		MobileWebApi webApi = new MobileWebApi();
-		webApi.requestJSONObject(stopInfoParameters, new MobileWebApi.JSONObjectResponseListener(null, null) {
+		webApi.requestJSONObject("/shuttles", stopInfoParameters, new MobileWebApi.JSONObjectResponseListener(null, null) {
 			
 			@Override
 			public void onResponse(JSONObject object) {
@@ -202,7 +232,6 @@ public class ShuttleModel {
 				MobileWebApi.sendSuccessMessage(handler);
 			}
 		});
-
 	}
 	
 	/****************************************************/
