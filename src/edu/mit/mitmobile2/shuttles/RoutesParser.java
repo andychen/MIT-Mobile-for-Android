@@ -93,7 +93,7 @@ public class RoutesParser extends JSONParser{
             	Stops stopItem = new Stops();
             	
             	stopItem.id = jStop.getString("id");
-//            	stopItem.title = jStop.getString("title");
+            	stopItem.title = jStop.optString("title");
             	stopItem.lat = jStop.getString("lat");
             	stopItem.lon = jStop.getString("lon");
 
