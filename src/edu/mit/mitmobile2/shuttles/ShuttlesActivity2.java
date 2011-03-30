@@ -26,6 +26,7 @@ import edu.mit.mitmobile2.Module;
 import edu.mit.mitmobile2.ModuleActivity;
 import edu.mit.mitmobile2.R;
 import edu.mit.mitmobile2.SliderActivity;
+import edu.mit.mitmobile2.objs.RouteItem;
 import edu.mit.mitmobile2.objs.RouteItem.Stops;
 import edu.mit.mitmobile2.shuttles.ShuttleRouteArrayAdapter2.SectionListItemView;
 
@@ -88,9 +89,8 @@ public class ShuttlesActivity2 extends ModuleActivity {
         double lat = 42.350937;
         double lon = -71.089429;
         
-		List<String> closestStopIds = ShuttleModel.getClosestStopIds(lat, lon);
+		List<String> closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 5);
 		HashMap<String, List<Stops>> closestStops = new HashMap<String, List<Stops>>();
-		Log.e("ANDREW stopids:", closestStopIds.get(0));
 		for (String s:closestStopIds){
 			closestStops.put(s, ShuttleModel.getStops(s));
 		}
@@ -175,7 +175,7 @@ public class ShuttlesActivity2 extends ModuleActivity {
 				}
 			}
 		};
-		ShuttleModel.fetchStopDetails("mass84_d", myHandler);
+		ShuttleModel.fetchRoutes(ctx, myHandler, forceRefresh);
 	}
 
 	/****************************************************/

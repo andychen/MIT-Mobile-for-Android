@@ -159,7 +159,7 @@ public class RouteItem implements Parcelable {
 		
 		public boolean alertSet = false;
 		
-		public String route_id;  // needed if not enclosed by RouteItem
+		public String route_id;     // needed if not enclosed by RouteItem
 		public String id;
 		public String title;
 		public String lat;

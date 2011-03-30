@@ -81,7 +81,7 @@ public class ShuttleRouteArrayAdapter2 implements ListAdapter {
 	/********************* ListAdapter interface **********************/
 	
 	@Override
-	public int getCount() {	//TODO: fix
+	public int getCount() {	//TODO: fix?
 		int total = 0;
 		for (List<?> items : mItemLists) {
 			total += 1 + items.size();
