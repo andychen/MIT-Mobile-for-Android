@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 import edu.mit.mitmobile2.Global;
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.Module;
@@ -29,8 +31,8 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	protected String routeId, stopId;	//TODO: necessary?
 	
 	protected Stops stops;
- 
-	static final int MENU_VIEW_MAP = Menu.FIRST;
+	
+	static final int MENU_REFRESH = Menu.FIRST;
 	
 	SharedPreferences pref;
 	
@@ -73,9 +75,7 @@ public class MITShuttleSmartActivity extends ModuleActivity {
         
 		closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 3);
     	shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx, closestStopIds);
-		setContentView(shuttleSmartAsyncListView); //TODO: place at end of code?
-//		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
-//		shuttleSmartLoader.showLoading();
+		setContentView(shuttleSmartAsyncListView);
 
 		//FIXME: The following handler and corresponding fetch call is only necessary because it is the only way to get stop titles since I wasn't allowed as a student to change the web service API.  
 		final Handler myHandler = new Handler() {
@@ -83,12 +83,15 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				if(msg.arg1 == MobileWebApi.SUCCESS) {
-//					shuttleSmartLoader.setVisibility(View.GONE); //TODO: unnecessary?
 					shuttleSmartAsyncListView.getData();
+				}
+				else{
+					Toast.makeText(ctx, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
+					shuttleSmartAsyncListView.lb.errorLoading();
 				}
 			}
 		};
-		
+		shuttleSmartAsyncListView.lb.startLoading();
 		ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
 
     }	
@@ -97,8 +100,19 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	/****************************************************/	
 	@Override
 	protected void prepareActivityOptionsMenu(Menu menu) {
-		menu.add(0, MENU_VIEW_MAP, Menu.NONE, "View on Map")
-		  .setIcon(R.drawable.menu_view_on_map);		
+		menu.add(0, MENU_REFRESH, Menu.NONE, "Refresh")
+		  .setIcon(R.drawable.menu_refresh);	
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case MENU_REFRESH: 
+			shuttleSmartAsyncListView.getData();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 	
 	@Override

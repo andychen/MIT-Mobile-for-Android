@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -107,7 +111,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    			
 	    		 // Initialize...
 	    		 if (firstTime) {
-
+	    			 	
 					 	SectionListItemView itemBuilder = new SectionListItemView() {
 					 		
 						public View getView(Object item, View convertView, ViewGroup parent) {
@@ -268,6 +272,25 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 		super(context);
 
 		ctx = context;
+
+		LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
+
+	    LocationListener locationListenerGps = new LocationListener() {
+	        public synchronized void onLocationChanged(Location location)
+	        {
+	        	Log.e("ANDREW", "CHEN");
+	        }
+	        public void onProviderDisabled(String provider) {}
+	        public void onProviderEnabled(String provider) {}
+	        public void onStatusChanged(String provider, int status, Bundle extra) {}
+	    };
+	    
+		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		{
+			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
+		}
+
+
 		sids = (ArrayList<String>) stopIds;
 		
 		top = (MITShuttleSmartActivity) context;
@@ -291,7 +314,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	}
 	/****************************************************/
 	void getData() {
-		
+		lb.startLoading();
 		m_stops = new ArrayList<ArrayList<Stops>>(); //TODO: unnecessary?
 
 		if (stopsTask!=null) {
@@ -316,27 +339,5 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	@Override
 	 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		
-	}
-
-	public View getView() {
-		return this;
-	}
-
-	public void updateView() {
-		//if (!updateThreadRunning) getData();
-	}
-	
-	public void onSelected() {
-		if (stopsTask==null) {
-			lb.startLoading();
-			getData();
-		}
-	}
-
-	public LockingScrollView getVerticalScrollView() {
-		return null;
-	}
-
-	public void onDestroy() {		
 	}
 }

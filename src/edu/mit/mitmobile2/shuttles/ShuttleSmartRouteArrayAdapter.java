@@ -14,7 +14,6 @@ import edu.mit.mitmobile2.SectionHeader;
 
 public class ShuttleSmartRouteArrayAdapter implements ListAdapter {
 
-//	private static final int DIRECTION_HEADER_VIEW_TYPE = 0;
 	private static final int STOP_HEADER_VIEW_TYPE = 0;
 	private static final int ITEM_VIEW_TYPE = 1;
 	private static final int NOT_FOUND = -1;
@@ -196,13 +195,14 @@ public class ShuttleSmartRouteArrayAdapter implements ListAdapter {
 
 	@Override
 	public boolean areAllItemsEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isEnabled(int position) {
-		int viewType = this.getItemViewType(position);
-		return viewType == ITEM_VIEW_TYPE;
+//		int viewType = this.getItemViewType(position);
+//		return viewType == ITEM_VIEW_TYPE;
+		return false;
 	}
 	
 }
