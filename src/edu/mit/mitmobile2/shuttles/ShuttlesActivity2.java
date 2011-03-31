@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
 import android.widget.TextView;
 import edu.mit.mitmobile2.FullScreenLoader;
 import edu.mit.mitmobile2.MobileWebApi;
@@ -26,16 +24,15 @@ import edu.mit.mitmobile2.Module;
 import edu.mit.mitmobile2.ModuleActivity;
 import edu.mit.mitmobile2.R;
 import edu.mit.mitmobile2.SliderActivity;
-import edu.mit.mitmobile2.objs.RouteItem;
 import edu.mit.mitmobile2.objs.RouteItem.Stops;
-import edu.mit.mitmobile2.shuttles.ShuttleRouteArrayAdapter2.SectionListItemView;
+import edu.mit.mitmobile2.shuttles.ShuttleSmartRouteArrayAdapter.SectionListItemView;
 
 public class ShuttlesActivity2 extends ModuleActivity {
 
 	Context ctx;
 
-	ListView shuttleListView;
-	ShuttleRouteArrayAdapter2 adapter;
+	ShuttleSmartAsyncListView shuttleListView;
+	ShuttleSmartRouteArrayAdapter adapter;
 	private View mFooterView;
 
 	private FullScreenLoader shuttleSmartLoader;
@@ -61,7 +58,7 @@ public class ShuttlesActivity2 extends ModuleActivity {
 	void createView() {
 
 		setContentView(R.layout.shuttles2);
-		shuttleListView = (ListView) findViewById(R.id.shuttleLV);
+		shuttleListView = (ShuttleSmartAsyncListView) findViewById(R.id.shuttleLV);
 		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttleSmartLoader);
 
 		getData(false);
@@ -125,7 +122,7 @@ public class ShuttlesActivity2 extends ModuleActivity {
 			}
 		};
 
-		ShuttleRouteArrayAdapter2 adapter = new ShuttleRouteArrayAdapter2(this,
+		ShuttleSmartRouteArrayAdapter adapter = new ShuttleSmartRouteArrayAdapter(this,
 				itemBuilder);
 
 		for (String s: closestStops.keySet()){
@@ -133,7 +130,7 @@ public class ShuttlesActivity2 extends ModuleActivity {
 		}
 
 		shuttleListView.setVisibility(View.VISIBLE);
-		shuttleListView.setAdapter(adapter);
+//		shuttleListView.setAdapter(adapter);
 
 		OnItemClickListener listener = new OnItemClickListener() {
 			@Override
@@ -151,7 +148,7 @@ public class ShuttlesActivity2 extends ModuleActivity {
 			}
 		};
 
-		shuttleListView.setOnItemClickListener(listener);
+//		shuttleListView.setOnItemClickListener(listener);
 
 	}
 
@@ -193,7 +190,7 @@ public class ShuttlesActivity2 extends ModuleActivity {
 
 	@Override
 	protected Module getModule() {
-		return new ShuttlesModule2();
+		return new ShuttleSmartModule();
 	}
 
 	@Override

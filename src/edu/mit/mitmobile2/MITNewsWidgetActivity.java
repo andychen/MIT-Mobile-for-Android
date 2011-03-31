@@ -47,7 +47,7 @@ import edu.mit.mitmobile2.news.NewsModel;
 import edu.mit.mitmobile2.objs.NewsItem;
 import edu.mit.mitmobile2.people.PeopleModule;
 import edu.mit.mitmobile2.shuttles.ShuttlesModule;
-import edu.mit.mitmobile2.shuttles.ShuttlesModule2;
+import edu.mit.mitmobile2.shuttles.ShuttleSmartModule;
 import edu.mit.mitmobile2.tour.TourModule;
 
 public class MITNewsWidgetActivity extends Activity implements OnGesturePerformedListener, OnSharedPreferenceChangeListener {
@@ -220,7 +220,7 @@ public class MITNewsWidgetActivity extends Activity implements OnGesturePerforme
 		findViewById(R.id.homeTopNewsTV).setOnClickListener(moreTopNewsClickListener);
 		
 		Module[] modules = new Module[] {
-			new ShuttlesModule2(),
+			new ShuttleSmartModule(),
 			new ShuttlesModule(),
 			new MapsModule(),
 			new EventsModule(),

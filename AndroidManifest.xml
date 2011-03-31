@@ -210,6 +210,7 @@
 		<activity android:name=".PrefsActivity"></activity>
 		<uses-library android:required="true" android:name="com.google.android.maps"></uses-library>
 		<activity android:name=".shuttles.ShuttlesActivity2"></activity>
+		<activity android:name=".shuttles.MITShuttleSmartActivity"></activity>
 </application>
 
  		

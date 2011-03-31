@@ -93,7 +93,7 @@ public class ShuttleModel {
 
 	static final int ALERT_EXPIRE_TIME = 30 * 60 * 1000; // 30 minutes
 
-	static private HashMap<String, List<Stops>> stops = new HashMap<String, List<Stops>>();
+	static private HashMap<String, List<Stops>> stops = new HashMap<String, List<Stops>>();	// 
 
 	private static List<RouteItem> getRoutes() {
 		if (routes != null) {
@@ -136,15 +136,15 @@ public class ShuttleModel {
 		return getRoute(routeItem.route_id);
 	}
 
-	// Returns unique stops; disregards route info.
-	public static List<Stops> getStops() {
-		ArrayList<Stops> results = new ArrayList<Stops>();
-
-		for (List<Stops> l : stops.values()) {
-			results.add(l.get(0));
-		}
-		return results;
-	}
+//	// Returns unique stops; disregards route info.
+//	public static List<Stops> getStops() {
+//		ArrayList<Stops> results = new ArrayList<Stops>();
+//
+//		for (List<Stops> l : stops.values()) {
+//			results.add(l.get(0));
+//		}
+//		return results;
+//	}
 
 	public static List<Stops> getStops(String stopId) {
 		return stops.get(stopId);
@@ -293,7 +293,7 @@ public class ShuttleModel {
 		stopInfoParameters.put("id", stopId);
 
 		MobileWebApi webApi = new MobileWebApi();
-		webApi.requestJSONObject("/shuttles", stopInfoParameters,
+		webApi.requestJSONObject(BASE_PATH, stopInfoParameters,
 				new MobileWebApi.JSONObjectResponseListener(null, null) {
 
 					@Override

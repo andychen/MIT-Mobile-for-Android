@@ -103,8 +103,7 @@ public class MITStopsSliderActivity extends SliderActivity {
 
     	setPosition(last_pos);
 		curView = (StopsAsyncView) getScreen(last_pos);  // need to set here first time to avoid memory leak (otherwise onStop() will find curView==null)
-    	
-    }	
+    }
     
 
 	/****************************************************/

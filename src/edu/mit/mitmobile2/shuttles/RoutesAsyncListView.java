@@ -84,15 +84,15 @@ public class RoutesAsyncListView  extends LinearLayout implements SliderInterfac
 				super.handleMessage(msg);
 				lb.setLastLoaded(new Date());
 				lb.endLoading();
-				if(msg.arg1 == MobileWebApi.SUCCESS) {
-			    	 ri = ShuttleModel.getUpdatedRoute(ri);
-			    		mStops = ri.stops;
-			    		ra.clear();
-				    	for (Stops s : mStops) {
-				    		 ra.add(s);
-				    	}
+				if (msg.arg1 == MobileWebApi.SUCCESS) {
+					ri = ShuttleModel.getUpdatedRoute(ri);
+					mStops = ri.stops;
+					ra.clear();
+					for (Stops s : mStops) {
+						ra.add(s);
+					}
 
-			    	 ra.notifyDataSetChanged();
+					ra.notifyDataSetChanged();
 				} else if (msg.arg1 == MobileWebApi.ERROR) {
 					Toast.makeText(mActivity, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
 	    			lb.errorLoading();

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:id="@+id/shuttlesmart_stopsTop"
+  android:background="@drawable/main_repeat"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+
+	<edu.mit.mitmobile2.TitleBar
+  		android:text="Shuttle Smart View"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content" />
+		
+	<!-- <LinearLayout
+	  android:id="@+id/stopsLL"
+	  android:orientation="vertical"
+	  android:layout_weight="1"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"/>
+	 -->
+	 
+	 	<ListView 
+			android:id="@+id/shuttlesmart_stopsLV"
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:layout_weight="1"
+            style="@style/Lists"/>
+		
+		<!-- 
+	<ListView android:id="@android:id/list"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:layout_weight="1"/>
+ 	-->
+ 		
+</LinearLayout>

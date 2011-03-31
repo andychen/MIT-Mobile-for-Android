@@ -584,7 +584,7 @@ public class StopsAsyncView  extends LinearLayout implements SliderInterface , O
 	public void onSelected() {
 		if (stopsTask==null) {
 			lb.startLoading();
-			getData();
+			getData();		//TODO: KEY?????
 		}
 	}
 

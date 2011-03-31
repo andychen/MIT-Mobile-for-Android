@@ -1,0 +1,327 @@
+package edu.mit.mitmobile2.shuttles;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import edu.mit.mitmobile2.LoaderBar;
+import edu.mit.mitmobile2.LockingScrollView;
+import edu.mit.mitmobile2.MobileWebApi;
+import edu.mit.mitmobile2.R;
+import edu.mit.mitmobile2.objs.RouteItem;
+import edu.mit.mitmobile2.objs.RouteItem.Stops;
+import edu.mit.mitmobile2.objs.ShuttleSmart_Predicted;
+import edu.mit.mitmobile2.shuttles.ShuttleSmartRouteArrayAdapter.SectionListItemView;
+
+public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemClickListener {
+
+	ArrayList<Stops> m_stops;
+	MITShuttleSmartActivity top;
+	CheckStopsTask stopsTask;
+	ListView shuttlesmart_stopsLV;
+	ShuttleSmartRouteArrayAdapter adapter;
+	LoaderBar lb;
+	List<String> sids;
+	Context ctx;
+	
+	/****************************************************/
+	class CheckStopsTask extends AsyncTask<String, Void, Void> {
+
+		StopsParser sp;
+		boolean firstTime = true;
+
+		protected Void doInBackground(String... urls) {
+
+			String url = urls[0];
+
+			while (true) {
+
+				// Update stops...
+				sp = new StopsParser();
+				sp.getJSON(url, true);
+
+				if (isCancelled()) {
+					return null;
+				}
+
+				publishProgress((Void) null);
+
+				// Sleep...
+				try {
+					Thread.sleep(1000 * 30);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+	    }
+
+	    @SuppressWarnings("unchecked")
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			
+			super.onProgressUpdate(values);
+			
+			lb.setLastLoaded(new Date());
+			lb.endLoading();
+			 
+			boolean no_data = false;
+	    	if (sp==null) no_data = true;
+	    	else if (sp.items.size() == 0) no_data = true;
+	    	if (no_data) {
+	    		if(m_stops.size() == 0) {
+	    			Toast.makeText(ctx, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
+	    			lb.errorLoading();
+	    		}
+	    		return;
+	    	}
+			
+	    	// m_stops contains different shuttle infos for a physical stop
+    		 m_stops = (ArrayList<Stops>) sp.items;
+	    	 
+	    	 if (!m_stops.isEmpty()) {
+
+				 Stops s;
+	    			
+	    		 // Initialize...
+	    		 if (firstTime) {
+					 	
+	    			 	//TODO: Make sure this builds all the right stuff.
+					 	SectionListItemView itemBuilder = new SectionListItemView() {
+					 		
+					 		public View getView(Object item, View convertView, ViewGroup parent) {
+					 			
+					 			View v = convertView;
+					 			if (v == null) {
+					 				LayoutInflater vi = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					 				v = vi.inflate(R.layout.shuttlesmart_stops_row, null);
+					 			}
+					 			
+					 			ShuttleSmart_Predicted s = (ShuttleSmart_Predicted) item;
+								long curTime = System.currentTimeMillis();
+
+								////////////
+								// Mins
+								
+								long mins = (s.next*1000 - curTime)/1000/60;
+								long hours = mins / 60;
+								String text = null;
+
+								if (hours>1) {
+									mins = mins - (hours*60);
+									text = String.valueOf(hours) + " hrs " + String.valueOf(mins) + " mins";
+								} else if (hours>0) {
+									mins = mins - (hours*60);
+									text = String.valueOf(hours) + " hr " + String.valueOf(mins) + " mins";
+								} else {
+									if (mins==0) text = "now";
+									else if (mins==1) text = "1 min";
+									else text = String.valueOf(mins) + " mins";
+								}
+								
+								TextView minsTV = (TextView) v.findViewById(R.id.shuttlesmart_stopsRowMinsTV);
+								minsTV.setText(text);
+								
+								return v;
+								
+							}
+						};
+						
+						adapter = new ShuttleSmartRouteArrayAdapter(ctx, itemBuilder);
+	    			 
+	    			 
+	    			firstTime = false;
+	    		}
+	    		 
+	    		adapter.clear();
+
+			 	//key: route_id, value: Stop predictions 
+				HashMap<String, ArrayList<ShuttleSmart_Predicted>> sections = new HashMap<String, ArrayList<ShuttleSmart_Predicted>>();
+
+	    		// Update
+				ShuttleSmart_Predicted pi;
+				
+	    		for (int x=0; x<m_stops.size(); x++) {
+					s = m_stops.get(x);
+	    			 
+	   				if (!sections.containsKey(s.route_id)) {
+	   					sections.put(s.title, new ArrayList<ShuttleSmart_Predicted>());
+	   				}
+	   				ArrayList<ShuttleSmart_Predicted> predictions = sections.get(s.title);
+	    			 
+		    		Log.d("StopsAsyncView", s.toString());
+
+    				
+	    			// first stop...
+    				pi = new ShuttleSmart_Predicted();
+    				pi.next = s.next;
+    				pi.stop_id = s.id;
+    				pi.route_id = s.route_id;
+    				pi.route_title = s.title;
+
+    				predictions.add(pi);
+    				
+    				// the rest...
+    				Integer p;
+	    			for (int z=0; z<s.predictions.size(); z++) {
+				
+	    				p = s.predictions.get(z);
+	    				
+	    				pi = new ShuttleSmart_Predicted();
+	    				pi.next = s.next + p.longValue();
+	    				pi.stop_id = s.id;
+	    				pi.route_id = s.route_id;
+	    				predictions.add(pi);
+	    			}
+
+	    		}	 // for stops
+
+	    		//Gets route titles.
+				HashMap<String, String> routeTitles = new HashMap<String, String>();
+				for (RouteItem aRouteItem : ShuttleModel.getSortedRoutes()) {
+					routeTitles.put(aRouteItem.route_id, aRouteItem.title);
+				}
+	    		 
+				
+				// Add current route first
+				String routeTitle;
+				ArrayList<ShuttleSmart_Predicted> c = sections.get(top.routeId);
+				if (c!=null) {
+					routeTitle = routeTitles.get(top.routeId);
+					if (routeTitle == null) routeTitle = top.routeId;
+					sections.remove(top.routeId);
+					adapter.addSection(routeTitle, c);
+				}
+
+				// Now add remainder...
+				for (Entry<String, ArrayList<ShuttleSmart_Predicted>> entry: sections.entrySet()) {
+	    			routeTitle = routeTitles.get(entry.getKey());
+					if (routeTitle == null) routeTitle = entry.getKey();
+	    			adapter.addSection(routeTitle, entry.getValue());
+	    		}
+				shuttlesmart_stopsLV.setOnItemClickListener(ShuttleSmartAsyncListView.this);
+				shuttlesmart_stopsLV.setAdapter(adapter);
+	    		 
+	    	}  // isEmpty
+		    	
+	    }  // progressUpdate
+	
+	}  // class CheckStopsTask 
+	
+	/****************************************************/
+	void terminate() {
+		
+		if (stopsTask!=null) {
+			boolean isCanceled;
+			isCanceled = stopsTask.cancel(true);
+			while (!isCanceled) {
+				 // Sleep...
+				 try {
+					 Thread.sleep(1000*10);
+				 } catch (InterruptedException e) {
+					 e.printStackTrace();
+				 }
+				isCanceled = stopsTask.cancel(true);
+			}
+			stopsTask = null;
+		}
+		
+	}
+	
+	/**
+	 * @param stops **************************************************/
+
+	public ShuttleSmartAsyncListView(Context context, List<String> stopIds) {
+		
+		super(context);
+
+		ctx = context;
+		sids = stopIds;
+		
+		top = (MITShuttleSmartActivity) context;
+		
+		LayoutInflater vi = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		LinearLayout topView = (LinearLayout) vi.inflate(R.layout.shuttlesmart_stops, null);
+
+		shuttlesmart_stopsLV = (ListView) topView.findViewById(R.id.shuttlesmart_stopsLV);
+//		TextView titleTV = (TextView) topView.findViewById(R.id.shuttlesmart_stopsTitleTV);
+//		titleTV.setText(sids.title);
+
+        Display display = top.getWindowManager().getDefaultDisplay(); 
+        int height = display.getHeight();
+        topView.setMinimumHeight(height-30);
+        
+		lb = new LoaderBar(ctx);
+		topView.addView(lb);
+		
+		addView(topView);	//TODO: is this necessary?
+
+	}
+	/****************************************************/
+	//TODO: Make sure this gets the right data.
+	void getData() {
+		
+		m_stops = new ArrayList<Stops>();
+
+		if (stopsTask!=null) {
+			if (!stopsTask.isCancelled()) {
+				stopsTask.cancel(true);
+				//throw new RuntimeException("should have been canceled");
+			}
+		}
+		
+		
+		stopsTask = new CheckStopsTask();
+		RoutesParser rp = new RoutesParser();
+//		stopsTask.execute(rp.getBaseUrl()+"?command=stopInfo&id="+sids.id, null, null);
+		
+		//ShuttleModel.fetchRoutes(ctx, myHandler, forceRefresh);
+	}
+
+	
+	/****************************************************/
+
+	@Override
+	 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		
+	}
+
+	public View getView() {
+		return this;
+	}
+
+	public void updateView() {
+		//if (!updateThreadRunning) getData();
+	}
+	
+	public void onSelected() {
+		if (stopsTask==null) {
+			lb.startLoading();
+			getData();
+		}
+	}
+
+	public LockingScrollView getVerticalScrollView() {
+		return null;
+	}
+
+	public void onDestroy() {		
+	}
+}
