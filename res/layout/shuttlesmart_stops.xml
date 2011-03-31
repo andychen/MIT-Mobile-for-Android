@@ -19,11 +19,11 @@
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"/>
 	 -->
-	 <LinearLayout
+	 <!--  <LinearLayout
   		android:orientation="vertical"
   		android:id="@+id/shuttlesmart_stopsLL"
 	 	android:layout_width="fill_parent"
-	 	android:layout_height="fill_parent">
+	 	android:layout_height="fill_parent"> -->
 	 	
 	 	<ListView 
 			android:id="@+id/shuttlesmart_stopsLV"
@@ -32,10 +32,10 @@
 			android:layout_weight="1"
             style="@style/Lists"/>
             
-        <edu.mit.mitmobile2.FullScreenLoader
+      <!-- <edu.mit.mitmobile2.FullScreenLoader
         	android:id="@+id/shuttlesmartLoader"
         	android:layout_width="fill_parent"
-        	android:layout_height="250dip" />
+        	android:layout_height="250dip" /> -->
 		
 		<!-- 
 	<ListView android:id="@android:id/list"
@@ -43,5 +43,5 @@
 		android:layout_height="wrap_content" 
 		android:layout_weight="1"/>
  	-->
- 	</LinearLayout>
+ 	<!-- </LinearLayout> -->
 </LinearLayout>

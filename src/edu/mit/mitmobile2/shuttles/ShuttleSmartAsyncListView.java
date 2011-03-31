@@ -8,8 +8,7 @@ import java.util.Map.Entry;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -149,7 +148,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 								}
 								preds = preds.concat(text+", ");
 							}
-							preds = preds.substring(0, preds.length()-1);
+							preds = preds.substring(0, preds.length()-2);
 							
 							TextView minsTV = (TextView) v.findViewById(R.id.shuttlesmart_stopsRowMinsTV);
 							minsTV.setText(preds);
@@ -237,14 +236,16 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 //				}
 
 				// Add to adapter...
-				String stopId;
+				String stopId = "";
 				for (Entry<String, ArrayList<ShuttleSmart_Predicted>> entry : sections.entrySet()) {
-	    			stopId = routeTitles.get(entry.getKey());
-//					if (stopId == null) stopId = entry.getKey();
+	    			stopId = entry.getKey();
 	    			adapter.addSection(stopId, entry.getValue());
+	    			Log.e("COUNT", adapter.getCount()+"");
 	    		}
 				shuttlesmart_stopsLV.setOnItemClickListener(ShuttleSmartAsyncListView.this);	//TODO: Unnecessary?
+				shuttlesmart_stopsLV.setVisibility(VISIBLE);
 				shuttlesmart_stopsLV.setAdapter(adapter);
+//				adapter.notifyDataSetChanged();
 	    		 
 	    	}  // isEmpty
 		    	
@@ -300,7 +301,6 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 		topView.addView(lb);
 		
 		addView(topView);
-		getData();
 	}
 	/****************************************************/
 	void getData() {
