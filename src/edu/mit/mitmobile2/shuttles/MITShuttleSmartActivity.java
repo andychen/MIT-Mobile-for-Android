@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Menu;
-import android.view.View;
-import edu.mit.mitmobile2.FullScreenLoader;
 import edu.mit.mitmobile2.Global;
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.Module;
@@ -26,7 +24,7 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	private ShuttleSmartAsyncListView shuttleSmartAsyncListView;
 //	private ShuttleSmartRouteArrayAdapter adapter;
 	
-	private FullScreenLoader shuttleSmartLoader;
+//	private FullScreenLoader shuttleSmartLoader;
 
 	protected String routeId, stopId;	//TODO: necessary?
 	
@@ -76,8 +74,8 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 		closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 3);
     	shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx, closestStopIds);
 		setContentView(shuttleSmartAsyncListView); //TODO: place at end of code?
-		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
-		shuttleSmartLoader.showLoading();
+//		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
+//		shuttleSmartLoader.showLoading();
 
 		//FIXME: The following handler and corresponding fetch call is only necessary because it is the only way to get stop titles since I wasn't allowed as a student to change the web service API.  
 		final Handler myHandler = new Handler() {
@@ -85,7 +83,7 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				if(msg.arg1 == MobileWebApi.SUCCESS) {
-					shuttleSmartLoader.setVisibility(View.GONE); //TODO: unnecessary?
+//					shuttleSmartLoader.setVisibility(View.GONE); //TODO: unnecessary?
 					shuttleSmartAsyncListView.getData();
 				}
 			}
