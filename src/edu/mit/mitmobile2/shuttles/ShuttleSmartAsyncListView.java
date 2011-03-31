@@ -127,28 +127,15 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 							
 							for (long l : s.predictions) {
 								long mins = (l * 1000 - curTime) / 1000 / 60;
-								long hours = mins / 60;
 								String text = null;
-
-								if (hours > 1) {
-									mins = mins - (hours * 60);
-									text = String.valueOf(hours) + " hrs "
-											+ String.valueOf(mins) + " mins";
-								} else if (hours > 0) {
-									mins = mins - (hours * 60);
-									text = String.valueOf(hours) + " hr "
-											+ String.valueOf(mins) + " mins";
-								} else {
-									if (mins == 0)
-										text = "now";
-									else if (mins == 1)
-										text = "1 min";
-									else
-										text = String.valueOf(mins) + " mins";
+								if (mins < 0)
+								{
+									mins = mins+curTime/1000/60;
 								}
+								text = String.valueOf(mins);
 								preds = preds.concat(text+", ");
 							}
-							preds = preds.substring(0, preds.length()-2);
+							preds = preds.substring(0, preds.length()-2).concat(" min");
 							
 							TextView minsTV = (TextView) v.findViewById(R.id.shuttlesmart_stopsRowMinsTV);
 							minsTV.setText(preds);

@@ -67,14 +67,17 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 
     void createView() {
     	
-        double lat = 42.350937;
-        double lon = -71.089429;
+//        double lat = 42.350937;
+//        double lon = -71.089429;
+        
+        double lat = 42.354758;
+        double lon = -71.101858;
         
 		closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 3);
     	shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx, closestStopIds);
 		setContentView(shuttleSmartAsyncListView); //TODO: place at end of code?
-//		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
-//		shuttleSmartLoader.showLoading();
+		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
+		shuttleSmartLoader.showLoading();
 
 		//FIXME: The following handler and corresponding fetch call is only necessary because it is the only way to get stop titles since I wasn't allowed as a student to change the web service API.  
 		final Handler myHandler = new Handler() {
@@ -82,26 +85,14 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				if(msg.arg1 == MobileWebApi.SUCCESS) {
-//					shuttleSmartLoader.setVisibility(View.GONE); //TODO: unnecessary?
+					shuttleSmartLoader.setVisibility(View.GONE); //TODO: unnecessary?
 					shuttleSmartAsyncListView.getData();
 				}
 			}
 		};
 		
 		ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
-		
 
-//		shuttleSmartAsyncListView = (ShuttleSmartAsyncListView) findViewById(R.id.shuttleLV);
-
-//		adapter = new ShuttleSmartRouteArrayAdapter(this,
-//				itemBuilder);
-//
-//		for (String s: closestStops.keySet()){
-//			adapter.addSection(s, closestStops.get(s));
-//		}
-//
-//		shuttleSmartAsyncListView.setVisibility(View.VISIBLE);
-//		shuttleSmartAsyncListView.setAdapter(adapter);
     }	
     
 
