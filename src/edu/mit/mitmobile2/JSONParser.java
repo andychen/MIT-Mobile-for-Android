@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -16,15 +17,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.mit.mitmobile2.about.BuildSettings;
-
-import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import edu.mit.mitmobile2.about.BuildSettings;
+import edu.mit.mitmobile2.objs.RouteItem.Stops;
 
 public abstract class JSONParser  {
 	
-	private static final String TAG = "JSONParser";
+//	private static final String TAG = "JSONParser";
 
 	private static final String HTTP_USER_AGENT = 
 		"MIT Mobile " + BuildSettings.VERSION_NUMBER + " for Android";
@@ -115,7 +115,7 @@ public abstract class JSONParser  {
         }
     }
     
-	public List parse(InputStream is, boolean expectObj) throws IOException, JSONException {
+	public List<?> parse(InputStream is, boolean expectObj) throws IOException, JSONException {
 
         JSONArray jArray = null;
         

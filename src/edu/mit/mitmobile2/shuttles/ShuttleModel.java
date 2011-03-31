@@ -227,6 +227,35 @@ public class ShuttleModel {
 					}
 				});
 	}
+	
+	public static void fetchRoutesAndDetails(Context context, final Handler uiHandler,
+			boolean forceRefresh) {
+		if (!forceRefresh
+				&& (System.currentTimeMillis() - lastRouteFetchTime) < ROUTE_CACHE_TIMEOUT) {
+
+			MobileWebApi.sendSuccessMessage(uiHandler);
+			return;
+		}
+
+		HashMap<String, String> routesParameters = new HashMap<String, String>();
+		routesParameters.put("command", "routes");
+
+		MobileWebApi webApi = new MobileWebApi(false, true, "Shuttle Routes",
+				context, uiHandler);
+		webApi.requestJSONArray(
+				BASE_PATH,
+				routesParameters,
+				new MobileWebApi.JSONArrayResponseListener(
+						new MobileWebApi.DefaultErrorListener(uiHandler), null) {
+					@Override
+					public void onResponse(JSONArray array) {
+						routes = new ArrayList<RouteItem>();
+						routes.addAll(RoutesParser.routesParser(array));
+						lastRouteFetchTime = System.currentTimeMillis();
+						MobileWebApi.sendSuccessMessage(uiHandler);
+					}
+				});
+	}
 
 	public static void fetchRouteDetails(Context context, RouteItem routeItem,
 			final Handler uiHandler) {

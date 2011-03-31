@@ -95,7 +95,8 @@ public class StopsAsyncView  extends LinearLayout implements SliderInterface , O
 	    	 
 	    }
 
-	    @Override
+	    @SuppressWarnings("unchecked")
+		@Override
 		protected void onProgressUpdate(Void... values) {
 			
 			super.onProgressUpdate(values);

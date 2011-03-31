@@ -6,9 +6,13 @@ import java.util.List;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.View;
+import edu.mit.mitmobile2.FullScreenLoader;
 import edu.mit.mitmobile2.Global;
+import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.Module;
 import edu.mit.mitmobile2.ModuleActivity;
 import edu.mit.mitmobile2.R;
@@ -20,7 +24,9 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	static public ArrayList<String> stop_ids = new ArrayList<String>(); //TODO: necessary?
 
 	private ShuttleSmartAsyncListView shuttleSmartAsyncListView;
-	private ShuttleSmartRouteArrayAdapter adapter;
+//	private ShuttleSmartRouteArrayAdapter adapter;
+	
+	private FullScreenLoader shuttleSmartLoader;
 
 	protected String routeId, stopId;	//TODO: necessary?
 	
@@ -30,12 +36,16 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	
 	SharedPreferences pref;
 	
+	Context ctx;
+	
 	/****************************************************/
    
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 
-    	super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
+		
+		ctx = this;
 
 //    	Bundle extras = getIntent().getExtras();
 //
@@ -56,19 +66,34 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	}
 
     void createView() {
-    	
-//		setContentView(R.layout.shuttlesmart_stops); //TODO: place at end of code?
-//		shuttleSmartAsyncListView = (ShuttleSmartAsyncListView) findViewById(R.id.shuttlesmart_stopsLV);
-//		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttleSmartLoader);
+
+		setContentView(shuttleSmartAsyncListView); //TODO: place at end of code?
+		shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
 
 //		getData(false);
 
-        double lat = 42.350937;
-        double lon = -71.089429;
-		closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 5);
+		//FIXME: The following handler and corresponding fetch call is only necessary because it is the only way to get stop titles since I wasn't allowed as a student to change the web service API.  
+		final Handler myHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				super.handleMessage(msg);
+				if(msg.arg1 == MobileWebApi.SUCCESS) {
+					shuttleSmartLoader.setVisibility(View.GONE); //TODO: unnecessary?
+			        double lat = 42.350937;
+			        double lon = -71.089429;
+			        
+					closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 3);
+					
+					shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx, closestStopIds);
+//					shuttleSmartLoader = (FullScreenLoader) findViewById(R.id.shuttlesmartLoader);
+					shuttleSmartLoader.setVisibility(View.GONE);
+				}
+			}
+		};
 		
-		shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(this, closestStopIds);
-		setContentView(shuttleSmartAsyncListView);
+		ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
+		
+
 //		shuttleSmartAsyncListView = (ShuttleSmartAsyncListView) findViewById(R.id.shuttleLV);
 
 //		adapter = new ShuttleSmartRouteArrayAdapter(this,

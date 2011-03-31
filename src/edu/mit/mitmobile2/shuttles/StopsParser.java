@@ -8,8 +8,6 @@ import org.json.JSONObject;
 
 import edu.mit.mitmobile2.Global;
 import edu.mit.mitmobile2.JSONParser;
-import edu.mit.mitmobile2.about.BuildSettings;
-import edu.mit.mitmobile2.objs.RouteItem;
 import edu.mit.mitmobile2.objs.RouteItem.Stops;
 
 public class StopsParser extends JSONParser {
@@ -28,12 +26,13 @@ public class StopsParser extends JSONParser {
 	}
 
 	/****************************************/
+	@SuppressWarnings("unchecked")
 	@Override
 	protected
 	void parseObj(){
 	
         try {
-           
+
             JSONArray jStops = jItem.optJSONArray("stops");
             
             if (jStops!=null) {
@@ -45,7 +44,7 @@ public class StopsParser extends JSONParser {
                 	Stops si = new Stops();
                 	
                 	si.id = jStop.getString("id");
-                	//si.title = jStop.getString("title");  // no such?
+//                	si.title = jStop.getString("title");  // no such?
                 	si.lat = jStop.getString("lat");
                 	si.lon = jStop.getString("lon");
                 	si.next = jStop.getInt("next");  // TODO long?

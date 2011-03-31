@@ -151,8 +151,15 @@ public class RoutesParser extends JSONParser{
 
 	@Override
 	protected void parseObj() {
+		try {
+			JSONArray jarray = jItem.toJSONArray(null);
+			items.add(routesParser(jarray));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		ri = parseJSONRouteObject(jItem);
+//		ri = parseJSONRouteObject(jItem);
 		
 	}
 }

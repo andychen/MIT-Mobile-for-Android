@@ -2,7 +2,7 @@ package edu.mit.mitmobile2.objs;
 
 public class ShuttleSmart_Predicted {
 	
-	public long next;
+	public long[] predictions;	//
 	
 	public String route_id;
 	public String route_title;
