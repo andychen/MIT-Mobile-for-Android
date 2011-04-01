@@ -395,8 +395,7 @@ public class StopsAsyncView  extends LinearLayout implements SliderInterface , O
 				//throw new RuntimeException("should have been canceled");
 			}
 		}
-		
-		
+
 		stopsTask = new CheckStopsTask();
 		RoutesParser rp = new RoutesParser();
 		stopsTask.execute(rp.getBaseUrl()+"?command=stopInfo&id="+si.id, null, null);

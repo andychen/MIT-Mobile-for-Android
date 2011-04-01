@@ -1,10 +1,10 @@
 package edu.mit.mitmobile2.shuttles;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,24 +15,10 @@ import edu.mit.mitmobile2.Global;
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.Module;
 import edu.mit.mitmobile2.ModuleActivity;
-import edu.mit.mitmobile2.R;
-import edu.mit.mitmobile2.objs.RouteItem.Stops;
 
 public class MITShuttleSmartActivity extends ModuleActivity {
-	
-	private List<String> closestStopIds;
-	static public ArrayList<String> stop_ids = new ArrayList<String>(); //TODO: necessary?
 
 	private ShuttleSmartAsyncListView shuttleSmartAsyncListView;
-//	private ShuttleSmartRouteArrayAdapter adapter;
-	
-//	private FullScreenLoader shuttleSmartLoader;
-
-	protected String routeId, stopId;	//TODO: necessary?
-	
-	protected Stops stops;
-	
-	static final int MENU_REFRESH = Menu.FIRST;
 	
 	SharedPreferences pref;
 	
@@ -46,35 +32,17 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 		super.onCreate(savedInstanceState);
 		
 		ctx = this;
-
-//    	Bundle extras = getIntent().getExtras();
-//
-//        if (extras!=null){ 
-//        	routeId = extras.getString(ShuttleModel.KEY_ROUTE_ID);
-//        	stopId = extras.getString(ShuttleModel.KEY_STOP_ID);
-//        }
-        
-//		mStops = ShuttleModel.getRoute(routeId).stops;
-//		last_pos = ShuttleModel.getStopPosition(mStops, stopId);
        
-		pref = getSharedPreferences(Global.PREFS_SHUTTLES,Context.MODE_WORLD_READABLE + Context.MODE_WORLD_WRITEABLE); 
-		
-    	setTitle("MIT Stops"); // TODO: does nothing?
-    	
-    	createView();
+		pref = getSharedPreferences(Global.PREFS_SHUTTLES,Context.MODE_WORLD_READABLE + Context.MODE_WORLD_WRITEABLE);
+//		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    	createView();
+
 
 	}
 
     void createView() {
-    	
-//        double lat = 42.350937;
-//        double lon = -71.089429;
-        
-        double lat = 42.354758;
-        double lon = -71.101858;
-        
-		closestStopIds = ShuttleModel.getClosestStopIds(lat, lon, 3);
-    	shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx, closestStopIds);
+
+    	shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx);
 		setContentView(shuttleSmartAsyncListView);
 
 		//FIXME: The following handler and corresponding fetch call is only necessary because it is the only way to get stop titles since I wasn't allowed as a student to change the web service API.  
@@ -83,6 +51,8 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
 				if(msg.arg1 == MobileWebApi.SUCCESS) {
+					shuttleSmartAsyncListView.lb.setLastLoaded(new Date());
+					shuttleSmartAsyncListView.lb.endLoading();
 					shuttleSmartAsyncListView.getData();
 				}
 				else{
@@ -92,7 +62,14 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 			}
 		};
 		shuttleSmartAsyncListView.lb.startLoading();
-		ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
+		if (ShuttleModel.getSortedRoutes().size() == 0)
+		{
+			ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
+		}
+		else
+		{
+			shuttleSmartAsyncListView.getData();
+		}
 
     }	
     
@@ -100,16 +77,13 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	/****************************************************/	
 	@Override
 	protected void prepareActivityOptionsMenu(Menu menu) {
-		menu.add(0, MENU_REFRESH, Menu.NONE, "Refresh")
-		  .setIcon(R.drawable.menu_refresh);	
+//		menu.add(0, MENU_REFRESH, Menu.NONE, "Refresh")
+//		  .setIcon(R.drawable.menu_refresh);	
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_REFRESH: 
-			shuttleSmartAsyncListView.getData();
-			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -122,6 +96,30 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	
 	@Override
 	public boolean isModuleHomeActivity() {
-		return false;
+		return true;
+	}
+	
+//    @Override 
+//    protected void onDestroy() {
+//    	shuttleSmartAsyncListView.destroy();
+//    	System.gc();
+//    	super.onDestroy();
+//    }
+	@Override
+    protected void onPause() {
+		super.onPause();
+		if (shuttleSmartAsyncListView!=null) shuttleSmartAsyncListView.terminate();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (shuttleSmartAsyncListView!=null) shuttleSmartAsyncListView.terminate();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+//		if (shuttleSmartAsyncListView!=null & ShuttleModel.getSortedRoutes().size() !=  0) shuttleSmartAsyncListView.getData();	//TODO: activate?
 	}
 }

@@ -3,7 +3,6 @@ package edu.mit.mitmobile2.shuttles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import android.content.Context;
@@ -24,7 +23,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import edu.mit.mitmobile2.LoaderBar;
-import edu.mit.mitmobile2.LockingScrollView;
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.R;
 import edu.mit.mitmobile2.objs.RouteItem;
@@ -39,6 +37,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	CheckStopsTask stopsTask;
 	ListView shuttlesmart_stopsLV;
 	ShuttleSmartRouteArrayAdapter adapter;
+	LocationManager lm;
 	LoaderBar lb;
 	ArrayList<String> sids;
 	Context ctx;
@@ -51,10 +50,14 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 		
 		boolean firstTime = true;
 
+		@SuppressWarnings("unchecked")
 		protected Void doInBackground(String... urls) {
 
 			while (true) {
-				
+				if (isCancelled())
+				{
+					return (Void) null;
+				}
 				m_stops = new ArrayList<ArrayList<Stops>>();
 				
 				// Update stops...
@@ -64,10 +67,6 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 					sp.getJSON(urls[i], true);
 					m_stops.add((ArrayList<Stops>) sp.items);
 				}
-				
-				// Warm up routes cache...
-//				rp = new RoutesParser();
-//				rp.getJSON(urls[3], true);	//TODO: assign 4 to be the above global variable + 1
 				
 				if (isCancelled()) {
 					return null;
@@ -129,17 +128,34 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 							// Mins
 							String preds = "";
 							
+							boolean hasPrediction = true;
+							
 							for (long l : s.predictions) {
 								long mins = (l * 1000 - curTime) / 1000 / 60;
 								String text = null;
 								if (mins < 0)
 								{
-									mins = mins+curTime/1000/60;
+									if (mins < -1000)
+									{
+										mins = mins+curTime/1000/60;
+									}
+									else
+									{
+										hasPrediction = false;
+										break;
+									}
 								}
 								text = String.valueOf(mins);
 								preds = preds.concat(text+", ");
 							}
-							preds = preds.substring(0, preds.length()-2).concat(" min");
+							if (hasPrediction)
+							{
+								preds = preds.substring(0, preds.length()-2).concat(" min");
+							}
+							else
+							{
+								preds = "No prediction";
+							}
 							
 							TextView minsTV = (TextView) v.findViewById(R.id.shuttlesmart_stopsRowMinsTV);
 							minsTV.setText(preds);
@@ -203,10 +219,10 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    				pi = new ShuttleSmart_Predicted();
 	    				pi.stop_id = p.id;
 	    				pi.route_id = p.route_id;
-	    				pi.predictions = new long[p.predictions.size()+1];
+	    				pi.predictions = new long[Math.min(p.predictions.size()+1, 3)];
 	    				pi.predictions[0] = p.next;
 	    				pi.route_title = routeTitles.get(pi.route_id);
-	    				for (int i=0; i<p.predictions.size(); i++)
+	    				for (int i=0; i<Math.min(p.predictions.size(),2); i++)
 	    				{
 	    					pi.predictions[i+1] = p.predictions.get(i);
 	    				}
@@ -214,17 +230,6 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    			}
 
 	    		}	 // for stops
-	    		 
-				
-//				// Add current route first
-//				String routeTitle;
-//				ArrayList<ShuttleSmart_Predicted> c = sections.get(top.routeId);
-//				if (c!=null) {
-//					routeTitle = routeTitles.get(top.routeId);
-//					if (routeTitle == null) routeTitle = top.routeId;
-//					sections.remove(top.routeId);
-//					adapter.addSection(routeTitle, c);
-//				}
 
 				// Add to adapter...
 				String stopId = "";
@@ -267,41 +272,37 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	/**
 	 * @param stops **************************************************/
 
-	public ShuttleSmartAsyncListView(Context context, List<String> stopIds) {
+	public ShuttleSmartAsyncListView(Context context) {
 		
 		super(context);
 
 		ctx = context;
 
-		LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-
+//		sids = (ArrayList<String>) stopIds;
+		
+		top = (MITShuttleSmartActivity) context;
+		
+		lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 	    LocationListener locationListenerGps = new LocationListener() {
-	        public synchronized void onLocationChanged(Location location)
+	        public void onLocationChanged(Location location)
 	        {
-	        	Log.e("ANDREW", "CHEN");
+	        	sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), 3);
 	        }
 	        public void onProviderDisabled(String provider) {}
 	        public void onProviderEnabled(String provider) {}
 	        public void onStatusChanged(String provider, int status, Bundle extra) {}
 	    };
 	    
-		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER))
+		if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
 		{
-			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
+			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerGps);
 		}
-
-
-		sids = (ArrayList<String>) stopIds;
-		
-		top = (MITShuttleSmartActivity) context;
 		
 		LayoutInflater vi = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
 		LinearLayout topView = (LinearLayout) vi.inflate(R.layout.shuttlesmart_stops, null);
 
 		shuttlesmart_stopsLV = (ListView) topView.findViewById(R.id.shuttlesmart_stopsLV);
-//		TextView titleTV = (TextView) topView.findViewById(R.id.shuttlesmart_stopsTitleTV);
-//		titleTV.setText(sids.title);
 
         Display display = top.getWindowManager().getDefaultDisplay(); 
         int height = display.getHeight();
@@ -315,7 +316,9 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	/****************************************************/
 	void getData() {
 		lb.startLoading();
-		m_stops = new ArrayList<ArrayList<Stops>>(); //TODO: unnecessary?
+		
+		RoutesParser rparser = new RoutesParser();
+		m_stops = new ArrayList<ArrayList<Stops>>();
 
 		if (stopsTask!=null) {
 			if (!stopsTask.isCancelled()) {
@@ -323,9 +326,12 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 				//throw new RuntimeException("should have been canceled");
 			}
 		}
-
+		
+		Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), 3);
+		
 		stopsTask = new CheckStopsTask();
-		RoutesParser rparser = new RoutesParser();
+
 		stopsTask.execute(rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(0),		//TODO: Make these URL calls based on a global variable indicating how many closest stops are returned.
 				rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(1),
 				rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(2),
