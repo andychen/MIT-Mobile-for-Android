@@ -306,12 +306,12 @@ public class ShuttleModel {
 		TreeMap<Float, String> sortedDists = new TreeMap<Float, String>(dists);
 		
 		Iterator<Float> it = sortedDists.keySet().iterator();
-		
+		Log.e("shuttlemodel NUM: ", num+"");
 		for (int i=0; i<num; i++)
 		{
 			closestStopIds.add(sortedDists.get(it.next()));
 		}
-		
+		Log.e("shuttlemodel return size: ", closestStopIds.size()+"");
 		return closestStopIds;
 	}
 

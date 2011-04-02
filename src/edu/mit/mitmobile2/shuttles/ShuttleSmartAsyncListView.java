@@ -3,7 +3,6 @@ package edu.mit.mitmobile2.shuttles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import android.content.Context;
 import android.location.Location;
@@ -11,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +64,8 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 				Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 				sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), MITShuttleSmartActivity.NUM_LOCATIONS);
 				m_stops = new ArrayList<ArrayList<Stops>>();
-				for (int i=0; i<MITShuttleSmartActivity.NUM_LOCATIONS; i++)
+				Log.e("sizes: ", sids.size()+"");
+				for (int i=0; i<Math.min(MITShuttleSmartActivity.NUM_LOCATIONS, sids.size()); i++)
 				{
 					sp = new StopsParser();
 					sp.getJSON(rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(i), true);
@@ -218,9 +219,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 //    				pi = new ShuttleSmart_Predicted();
 //    				
     				
-    				Stops p;
-	    			for (int z=0; z<s.size(); z++) {
-	    				p = s.get(z);
+	    			for (Stops p : s) {
 	    				pi = new ShuttleSmart_Predicted();
 	    				pi.stop_id = p.id;
 	    				pi.route_id = p.route_id;
@@ -244,28 +243,34 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
     			
     			long curTime = System.currentTimeMillis();
     			
-	    		for (ArrayList<ShuttleSmart_Predicted> entry : sections) {
-	    			ArrayList<ShuttleSmart_Predicted> preds = entry;
+	    		for (ArrayList<ShuttleSmart_Predicted> preds : sections) {
+	    			ArrayList<ShuttleSmart_Predicted> smart_preds = new ArrayList<ShuttleSmart_Predicted>();
+	    			ArrayList<ShuttleSmart_Predicted> first_preds = new ArrayList<ShuttleSmart_Predicted>();
+	    			ArrayList<ShuttleSmart_Predicted> last_preds = new ArrayList<ShuttleSmart_Predicted>();
 	    			int predCount = preds.size();
 	    			for (ShuttleSmart_Predicted pred : preds)
 	    			{
     					long mins = (pred.predictions[0] * 1000 - curTime) / 1000 / 60;
+    					// If no prediction or arrives in more than an hour, move to back of list.
     					if ((mins < 0 & mins > -1000000) | mins > 60)
     					{
-    						// Move to end of list.
-//    						preds.remove(pred);
-//    						preds.add(pred);
-    						
+    						last_preds.add(pred);
     						predCount -= 1;
-    					}	    				
+    					}
+    					else
+    					{
+    						first_preds.add(pred);
+    					}
 	    			}
+	    			smart_preds.addAll(first_preds);
+	    			smart_preds.addAll(last_preds);
 	    			if (predCount == 0)
 	    			{
-	    				last_sections.add(preds);
+	    				last_sections.add(smart_preds);
 	    			}
 	    			else
 	    			{
-	    				first_sections.add(preds);
+	    				first_sections.add(smart_preds);
 	    			}
 	    		}
 	    		smart_sections.addAll(first_sections);
@@ -323,7 +328,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    LocationListener locationListenerGps = new LocationListener() {
 	        public void onLocationChanged(Location location)
 	        {
-	        	sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), 3);
+	        	sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), MITShuttleSmartActivity.NUM_LOCATIONS);
 	        }
 	        public void onProviderDisabled(String provider) {}
 	        public void onProviderEnabled(String provider) {}

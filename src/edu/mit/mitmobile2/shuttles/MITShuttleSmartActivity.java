@@ -14,6 +14,7 @@ import edu.mit.mitmobile2.Global;
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.Module;
 import edu.mit.mitmobile2.ModuleActivity;
+import edu.mit.mitmobile2.objs.RouteItem;
 
 public class MITShuttleSmartActivity extends ModuleActivity {
 
@@ -35,7 +36,6 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 		ctx = this;
        
 		pref = getSharedPreferences(Global.PREFS_SHUTTLES,Context.MODE_WORLD_READABLE + Context.MODE_WORLD_WRITEABLE);
-//		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     	createView();
 
 
@@ -67,8 +67,13 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 		{
 			ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
 		}
+		else if (ShuttleModel.getSortedRoutes().get(0).stops.size() == 0)
+		{
+			ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
+		}
 		else
 		{
+			RouteItem temp = ShuttleModel.getSortedRoutes().get(0);
 			shuttleSmartAsyncListView.getData();
 		}
 
