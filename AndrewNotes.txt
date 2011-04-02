@@ -1,8 +1,0 @@
-Main => Shuttles => Route Detail => Shuttle Stop
-MITNewsWidgetActivity => ShuttlesActivity => MITRoutesSliderActivity => MITStopsSliderActivity
-
-Shuttle Module actions are in ShuttlesModule2
-	- Icon name is set in getShortName()
-
-A New Activity needs to appear in the AndroidManifest
-

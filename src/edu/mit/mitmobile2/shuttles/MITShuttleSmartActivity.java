@@ -18,6 +18,8 @@ import edu.mit.mitmobile2.ModuleActivity;
 
 public class MITShuttleSmartActivity extends ModuleActivity {
 
+	public static final int NUM_LOCATIONS = 5;
+	
 	private ShuttleSmartAsyncListView shuttleSmartAsyncListView;
 	
 	SharedPreferences pref;
@@ -98,13 +100,7 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	public boolean isModuleHomeActivity() {
 		return true;
 	}
-	
-//    @Override 
-//    protected void onDestroy() {
-//    	shuttleSmartAsyncListView.destroy();
-//    	System.gc();
-//    	super.onDestroy();
-//    }
+
 	@Override
     protected void onPause() {
 		super.onPause();
@@ -115,11 +111,5 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 	protected void onStop() {
 		super.onStop();
 		if (shuttleSmartAsyncListView!=null) shuttleSmartAsyncListView.terminate();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-//		if (shuttleSmartAsyncListView!=null & ShuttleModel.getSortedRoutes().size() !=  0) shuttleSmartAsyncListView.getData();	//TODO: activate?
 	}
 }

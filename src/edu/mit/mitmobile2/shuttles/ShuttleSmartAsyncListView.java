@@ -43,7 +43,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	Context ctx;
 	
 	/****************************************************/
-	class CheckStopsTask extends AsyncTask<String, Void, Void> {
+	class CheckStopsTask extends AsyncTask<Void, Void, Void> {
 
 		StopsParser sp;
 		RoutesParser rp;
@@ -51,25 +51,25 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 		boolean firstTime = true;
 
 		@SuppressWarnings("unchecked")
-		protected Void doInBackground(String... urls) {
+		protected Void doInBackground(Void... v) {
 
 			while (true) {
+
 				if (isCancelled())
 				{
-					return (Void) null;
+					return null;
 				}
-				m_stops = new ArrayList<ArrayList<Stops>>();
 				
 				// Update stops...
-				for (int i=0; i<3; i++)	//TODO: assign 3 to a global variable
+				RoutesParser rparser = new RoutesParser();
+				Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+				sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), MITShuttleSmartActivity.NUM_LOCATIONS);
+				m_stops = new ArrayList<ArrayList<Stops>>();
+				for (int i=0; i<MITShuttleSmartActivity.NUM_LOCATIONS; i++)
 				{
 					sp = new StopsParser();
-					sp.getJSON(urls[i], true);
+					sp.getJSON(rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(i), true);
 					m_stops.add((ArrayList<Stops>) sp.items);
-				}
-				
-				if (isCancelled()) {
-					return null;
 				}
 
 				publishProgress((Void) null);
@@ -238,7 +238,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    			adapter.addSection(stopId, entry.getValue());
 	    			Log.e("COUNT", adapter.getCount()+"");
 	    		}
-				shuttlesmart_stopsLV.setOnItemClickListener(ShuttleSmartAsyncListView.this);	//TODO: Unnecessary?
+				shuttlesmart_stopsLV.setOnItemClickListener(ShuttleSmartAsyncListView.this);
 				shuttlesmart_stopsLV.setVisibility(VISIBLE);
 				shuttlesmart_stopsLV.setAdapter(adapter);
 //				adapter.notifyDataSetChanged();
@@ -317,7 +317,6 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	void getData() {
 		lb.startLoading();
 		
-		RoutesParser rparser = new RoutesParser();
 		m_stops = new ArrayList<ArrayList<Stops>>();
 
 		if (stopsTask!=null) {
@@ -327,15 +326,9 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 			}
 		}
 		
-		Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude(), 3);
-		
 		stopsTask = new CheckStopsTask();
 
-		stopsTask.execute(rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(0),		//TODO: Make these URL calls based on a global variable indicating how many closest stops are returned.
-				rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(1),
-				rparser.getBaseUrl()+"?command=stopInfo&id="+sids.get(2),
-				rparser.getBaseUrl()+"?command=routes&compact=true");
+		stopsTask.execute();
 
 	}
 
