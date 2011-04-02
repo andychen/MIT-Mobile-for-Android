@@ -93,7 +93,7 @@ public abstract class JSONParser  {
             response = httpclient.execute(httpget);
             
             // Response status
-            Log.e("JSONParser",response.getStatusLine().toString());
+            Log.i("JSONParser",response.getStatusLine().toString());
  
             HttpEntity entity = response.getEntity();
  

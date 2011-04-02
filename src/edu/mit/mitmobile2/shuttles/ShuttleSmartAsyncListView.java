@@ -11,7 +11,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -135,7 +134,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 								String text = null;
 								if (mins < 0)
 								{
-									if (mins < -1000)
+									if (mins < -1000000)
 									{
 										mins = mins+curTime/1000/60;
 									}
@@ -144,6 +143,11 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 										hasPrediction = false;
 										break;
 									}
+								}
+								else if (mins > 60 *12)
+								{
+									hasPrediction = false;
+									break;
 								}
 								text = String.valueOf(mins);
 								preds = preds.concat(text+", ");
@@ -182,12 +186,14 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 					routeTitles.put(aRouteItem.route_id, aRouteItem.title);
 				}
 
-				HashMap<String, ArrayList<ShuttleSmart_Predicted>> sections = new HashMap<String, ArrayList<ShuttleSmart_Predicted>>();
+				ArrayList<ArrayList<ShuttleSmart_Predicted>> sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
+//				ArrayList<String> stopids = new ArrayList<String>();
 
 	    		// Update
 				ShuttleSmart_Predicted pi;
 				
 	    		for (int x=0; x<m_stops.size(); x++) {
+	    			sections.add(new ArrayList<ShuttleSmart_Predicted>());
 					s = m_stops.get(x);
 	    			
 					//Annoying way to get stop title because it's not provided in http://m.mit.edu/api/shuttles/?command=stopInfo&id=mass84_d
@@ -202,10 +208,10 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 							break;
 						}
 					}
-	   				if (!sections.containsKey(stop_title)) {
-	   					sections.put(stop_title, new ArrayList<ShuttleSmart_Predicted>());
-	   				}
-	   				ArrayList<ShuttleSmart_Predicted> predictions = sections.get(stop_title);
+//	   				if (sections.size() <= x) {
+//	   					sections.put(stop_title, new ArrayList<ShuttleSmart_Predicted>());
+//	   				}
+//	   				ArrayList<ShuttleSmart_Predicted> predictions = sections.get(stop_title);
 	    			 
 //		    		Log.d("StopsAsyncView", s.toString());
 
@@ -226,7 +232,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    				{
 	    					pi.predictions[i+1] = p.predictions.get(i);
 	    				}
-	    				predictions.add(pi);
+	    				sections.get(x).add(pi);
 	    			}
 
 	    		}	 // for stops
@@ -238,13 +244,13 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
     			
     			long curTime = System.currentTimeMillis();
     			
-	    		for (Entry<String, ArrayList<ShuttleSmart_Predicted>> entry : sections.entrySet()) {
-	    			ArrayList<ShuttleSmart_Predicted> preds = entry.getValue();
+	    		for (ArrayList<ShuttleSmart_Predicted> entry : sections) {
+	    			ArrayList<ShuttleSmart_Predicted> preds = entry;
 	    			int predCount = preds.size();
 	    			for (ShuttleSmart_Predicted pred : preds)
 	    			{
     					long mins = (pred.predictions[0] * 1000 - curTime) / 1000 / 60;
-    					if ((mins < 0 & mins > -2000) | mins > 60)
+    					if ((mins < 0 & mins > -1000000) | mins > 60)
     					{
     						// Move to end of list.
 //    						preds.remove(pred);

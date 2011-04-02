@@ -111,4 +111,12 @@ public class MITShuttleSmartActivity extends ModuleActivity {
 		super.onStop();
 		if (shuttleSmartAsyncListView!=null) shuttleSmartAsyncListView.terminate();
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// FIXME
+		//if (curView!=null) curView.getData();
+		if (shuttleSmartAsyncListView!=null) shuttleSmartAsyncListView.getData();
+	}
 }
