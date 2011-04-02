@@ -182,7 +182,6 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 					routeTitles.put(aRouteItem.route_id, aRouteItem.title);
 				}
 
-			 	//key: route_id, value: Stop predictions 
 				HashMap<String, ArrayList<ShuttleSmart_Predicted>> sections = new HashMap<String, ArrayList<ShuttleSmart_Predicted>>();
 
 	    		// Update
@@ -222,6 +221,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    				pi.predictions = new long[Math.min(p.predictions.size()+1, 3)];
 	    				pi.predictions[0] = p.next;
 	    				pi.route_title = routeTitles.get(pi.route_id);
+	    				pi.stop_title = stop_title;
 	    				for (int i=0; i<Math.min(p.predictions.size(),2); i++)
 	    				{
 	    					pi.predictions[i+1] = p.predictions.get(i);
@@ -231,12 +231,43 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 
 	    		}	 // for stops
 
+	    		// Reorganize results
+				ArrayList<ArrayList<ShuttleSmart_Predicted>> smart_sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
+    			ArrayList<ArrayList<ShuttleSmart_Predicted>> first_sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
+    			ArrayList<ArrayList<ShuttleSmart_Predicted>> last_sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
+    			
+    			long curTime = System.currentTimeMillis();
+    			
+	    		for (Entry<String, ArrayList<ShuttleSmart_Predicted>> entry : sections.entrySet()) {
+	    			ArrayList<ShuttleSmart_Predicted> preds = entry.getValue();
+	    			int predCount = preds.size();
+	    			for (ShuttleSmart_Predicted pred : preds)
+	    			{
+    					long mins = (pred.predictions[0] * 1000 - curTime) / 1000 / 60;
+    					if ((mins < 0 & mins > -2000) | mins > 60)
+    					{
+    						// Move to end of list.
+//    						preds.remove(pred);
+//    						preds.add(pred);
+    						
+    						predCount -= 1;
+    					}	    				
+	    			}
+	    			if (predCount == 0)
+	    			{
+	    				last_sections.add(preds);
+	    			}
+	    			else
+	    			{
+	    				first_sections.add(preds);
+	    			}
+	    		}
+	    		smart_sections.addAll(first_sections);
+	    		smart_sections.addAll(last_sections);
+
 				// Add to adapter...
-				String stopId = "";
-				for (Entry<String, ArrayList<ShuttleSmart_Predicted>> entry : sections.entrySet()) {
-	    			stopId = entry.getKey();
-	    			adapter.addSection(stopId, entry.getValue());
-	    			Log.e("COUNT", adapter.getCount()+"");
+				for (ArrayList<ShuttleSmart_Predicted> stop : smart_sections) {
+	    			adapter.addSection(stop.get(0).stop_title, stop);
 	    		}
 				shuttlesmart_stopsLV.setOnItemClickListener(ShuttleSmartAsyncListView.this);
 				shuttlesmart_stopsLV.setVisibility(VISIBLE);

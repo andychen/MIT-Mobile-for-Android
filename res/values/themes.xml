@@ -19,6 +19,14 @@
 		<item name="android:dividerHeight">@dimen/dividerHeight</item>
 	</style>
 	
+	<style name="ShuttleSmartList">
+		<item name="android:background">#ffffffff</item>
+		<item name="android:cacheColorHint">#ffffffff</item>
+		
+		<item name="android:divider">@color/dividerColor</item>
+		<item name="android:dividerHeight">@dimen/dividerHeight</item>
+	</style>
+
 	<style name="PageTitle">
 		<item name="android:textStyle">normal</item>
 		<item name="android:textSize">18sp</item>

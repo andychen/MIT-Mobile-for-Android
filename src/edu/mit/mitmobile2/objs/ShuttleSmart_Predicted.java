@@ -8,5 +8,5 @@ public class ShuttleSmart_Predicted {
 	public String route_title;
 	
 	public String stop_id;
-	
+	public String stop_title;
 }

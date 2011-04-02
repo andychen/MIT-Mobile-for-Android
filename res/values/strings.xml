@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MIT Mobile</string>
+    <string name="app_name">MIT Mobile Plus</string>
 
 
 
@@ -61,6 +61,8 @@ MIT\&apos;s commitment to innovation has led to a host of scientific breakthroug
         <item>Justin Anderson</item>
       <item>Developers</item>
         <item>Brian Patt, Ian Gavalakis, Sonya Huang</item>
+      <item>Student Developers</item>
+        <item>Andrew Chen</item>
       <item>UI Design</item>
         <item>Eric Kim, Ilona Moreland, Brian Tepfenhart</item>
       <item>MIT150 (Sponsor)</item>
