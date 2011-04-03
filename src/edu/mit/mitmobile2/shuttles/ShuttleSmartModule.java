@@ -8,12 +8,12 @@ public class ShuttleSmartModule extends Module {
 
 	@Override
 	public String getLongName() {
-		return "ShuttleSmart";
+		return "ShuttleSmart BETA";
 	}
 
 	@Override
 	public String getShortName() {
-		return "ShuttleSmart";
+		return "ShuttleSmart BETA";
 	}
 	
 	@Override

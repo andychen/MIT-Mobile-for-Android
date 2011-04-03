@@ -292,7 +292,7 @@ public class ShuttleModel {
 				});
 	}
 
-	public static List<String> getClosestStopIds(double lat, double lon, int num) {
+	public static List<String> getClosestStopIds(double lat, double lon) {
 		HashMap<Float, String> dists = new HashMap<Float, String>();
 		float[] results = new float[1];
 		ArrayList<String> closestStopIds = new ArrayList<String>();
@@ -306,12 +306,11 @@ public class ShuttleModel {
 		TreeMap<Float, String> sortedDists = new TreeMap<Float, String>(dists);
 		
 		Iterator<Float> it = sortedDists.keySet().iterator();
-		Log.e("shuttlemodel NUM: ", num+"");
-		for (int i=0; i<num; i++)
+		for (int i=0; i<sortedDists.size(); i++)
 		{
 			closestStopIds.add(sortedDists.get(it.next()));
 		}
-		Log.e("shuttlemodel return size: ", closestStopIds.size()+"");
+
 		return closestStopIds;
 	}
 
