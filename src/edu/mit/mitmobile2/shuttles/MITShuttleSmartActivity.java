@@ -1,20 +1,13 @@
 package edu.mit.mitmobile2.shuttles;
 
-import java.util.Date;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 import edu.mit.mitmobile2.Global;
-import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.Module;
 import edu.mit.mitmobile2.ModuleActivity;
-import edu.mit.mitmobile2.objs.RouteItem;
 
 public class MITShuttleSmartActivity extends ModuleActivity {
 
@@ -44,38 +37,10 @@ public class MITShuttleSmartActivity extends ModuleActivity {
     void createView() {
 
     	shuttleSmartAsyncListView = new ShuttleSmartAsyncListView(ctx);
-		setContentView(shuttleSmartAsyncListView);
+		setContentView(shuttleSmartAsyncListView);  
 
-		//FIXME: The following handler and corresponding fetch call is only necessary because it is the only way to get stop titles since I wasn't allowed as a student to change the web service API.  
-		final Handler myHandler = new Handler() {
-			@Override
-			public void handleMessage(Message msg) {
-				super.handleMessage(msg);
-				if(msg.arg1 == MobileWebApi.SUCCESS) {
-					shuttleSmartAsyncListView.lb.setLastLoaded(new Date());
-					shuttleSmartAsyncListView.lb.endLoading();
-					shuttleSmartAsyncListView.getData();
-				}
-				else{
-					Toast.makeText(ctx, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
-					shuttleSmartAsyncListView.lb.errorLoading();
-				}
-			}
-		};
 		shuttleSmartAsyncListView.lb.startLoading();
-		if (ShuttleModel.getSortedRoutes().size() == 0)
-		{
-			ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
-		}
-		else if (ShuttleModel.getSortedRoutes().get(0).stops.size() == 0)
-		{
-			ShuttleModel.fetchRoutesAndDetails(ctx, myHandler, true);
-		}
-		else
-		{
-			RouteItem temp = ShuttleModel.getSortedRoutes().get(0);
-			shuttleSmartAsyncListView.getData();
-		}
+		shuttleSmartAsyncListView.getData();
 
     }	
     

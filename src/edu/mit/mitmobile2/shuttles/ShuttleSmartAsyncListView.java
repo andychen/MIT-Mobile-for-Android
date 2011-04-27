@@ -10,7 +10,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,7 +71,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	/****************************************************/
 	class CheckStopsTask extends AsyncTask<Void, Void, Void> {
 
-		StopsParser sp;
+		ClosestStopsParser csp;
 		RoutesParser rp;
 		
 		boolean firstTime = true;
@@ -90,18 +89,12 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 				// Update stops...
 				RoutesParser rparser = new RoutesParser();
 				Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-				sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude());
-				m_stops = new ArrayList<ArrayList<Stops>>();
-				Log.e("sizes: ", sids.size()+"");
-				int stopsAdded = 0;
-				for (String sid : sids)
+				csp = new ClosestStopsParser();
+				csp.getJSON(rparser.getBaseUrl()+"?command=locInfo&lat="+location.getLatitude()+"&lon="+location.getLongitude(), true);
+				ArrayList<ArrayList<Stops>> stops = (ArrayList<ArrayList<Stops>>) csp.items;
+				for (ArrayList<Stops> x : stops)
 				{
-					sp = new StopsParser();
-					sp.getJSON(rparser.getBaseUrl()+"?command=stopInfo&id="+sid, true);
-					ArrayList<Stops> stops = (ArrayList<Stops>) sp.items;
-					int stopCount = stops.size();
-//					long next;
-					for (Stops s : stops)
+					for (Stops s : x)
 					{
 						s.next = unixTimeParser(s.next);
 						ArrayList<Integer> predictions = new ArrayList<Integer>();
@@ -110,20 +103,8 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 							predictions.add((int)unixTimeParser(l));
 						}
 						s.predictions = predictions;
-						if (s.next == -1)
-						{
-							stopCount -= 1;
-						}
 					}
-					if (stopCount > 0)
-					{
-						m_stops.add((ArrayList<Stops>) sp.items);
-						stopsAdded += 1;
-					}
-					if (stopsAdded == MITShuttleSmartActivity.NUM_LOCATIONS)
-					{
-						break;
-					}
+					m_stops.add((ArrayList<Stops>) x);
 				}
 
 				publishProgress((Void) null);
@@ -147,36 +128,34 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 			lb.setLastLoaded(new Date());
 			lb.endLoading();
 			 
-			boolean no_data = false;
-	    	if (sp==null) no_data = true;
-	    	else if (sp.items.size() == 0) no_data = true;
-	    	if (no_data) {
-	    		if(m_stops.size() == 0) {
-	    			Toast.makeText(ctx, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
-	    			lb.errorLoading();
-	    		}
-	    		return;
+	    	if (csp==null) {
+    			Toast.makeText(ctx, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
+    			lb.errorLoading();
 	    	}
-	    	 
-	    	 if (!m_stops.isEmpty()) {
+	    	else if (csp.items.size() == 0)
+	    	{
+	    		Toast.makeText(ctx, "No shuttles running right now!", Toast.LENGTH_LONG).show();
+	    	}
+	    	
+	    	if (!m_stops.isEmpty()) {
 
-				 ArrayList<Stops> s;
+	    		ArrayList<Stops> s;
 	    			
-	    		 // Initialize...
-	    		 if (firstTime) {
-	    			 	
-					 	SectionListItemView itemBuilder = new SectionListItemView() {
+	    		// Initialize...
+	    		if (firstTime) {
+					 	
+	    			SectionListItemView itemBuilder = new SectionListItemView() {
 					 		
-						public View getView(Object item, View convertView, ViewGroup parent) {
-
+	    				public View getView(Object item, View convertView, ViewGroup parent) {
+				
 							View v = convertView;
 							if (v == null) {
 								LayoutInflater vi = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 								v = vi.inflate(R.layout.shuttlesmart_stops_row, null);
 							}
-
+				
 							ShuttleSmart_Predicted s = (ShuttleSmart_Predicted) item;
-
+				
 							String preds = "";
 							
 							for (long l : s.predictions) {
@@ -198,17 +177,16 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 							
 							TextView routeTV = (TextView) v.findViewById(R.id.shuttlesmart_stopsRowRouteTV);
 							routeTV.setText(s.route_title);
-
+				
 							return v;
-
+				
 						}
 						};
-						
+
 						adapter = new ShuttleSmartRouteArrayAdapter(ctx, itemBuilder);
-	    			 
-	    			 
-	    			firstTime = false;
-	    		}
+
+						firstTime = false;
+				}
 	    		 
 	    		adapter.clear();
 
@@ -262,8 +240,6 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 				ArrayList<ArrayList<ShuttleSmart_Predicted>> smart_sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
     			ArrayList<ArrayList<ShuttleSmart_Predicted>> first_sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
     			ArrayList<ArrayList<ShuttleSmart_Predicted>> last_sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
-    			
-    			long curTime = System.currentTimeMillis();
     			
 	    		for (ArrayList<ShuttleSmart_Predicted> preds : sections) {
 	    			ArrayList<ShuttleSmart_Predicted> smart_preds = new ArrayList<ShuttleSmart_Predicted>();
@@ -347,7 +323,8 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    LocationListener locationListenerGps = new LocationListener() {
 	        public void onLocationChanged(Location location)
 	        {
-	        	sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude());
+//	        	sids = (ArrayList<String>) ShuttleModel.getClosestStopIds(location.getLatitude(), location.getLongitude());
+	        	sids = new ArrayList<String>();
 	        }
 	        public void onProviderDisabled(String provider) {}
 	        public void onProviderEnabled(String provider) {}
