@@ -34,12 +34,13 @@ public class ClosestStopsParser extends JSONParser {
         try {
 
             JSONArray jClosestStops = jItem.optJSONArray("closestStops");
-            ArrayList<Stops> locationStops = new ArrayList<Stops>();
+            
             if (jClosestStops!=null) {
             	for(int i=0; i<jClosestStops.length(); i++)
             	{
-            		JSONArray jStops = jClosestStops.getJSONArray(i);
-            		
+            		JSONObject jDict = jClosestStops.getJSONObject(i);
+            		JSONArray jStops = jDict.optJSONArray("stops");
+            		ArrayList<Stops> locationStops = new ArrayList<Stops>();
 	                for(int s=0; s<jStops.length(); s++)
 	                {
 	                	JSONObject jStop = jStops.getJSONObject(s);
