@@ -2,7 +2,6 @@ package edu.mit.mitmobile2.shuttles;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import android.content.Context;
 import android.location.Location;
@@ -23,7 +22,6 @@ import android.widget.Toast;
 import edu.mit.mitmobile2.LoaderBar;
 import edu.mit.mitmobile2.MobileWebApi;
 import edu.mit.mitmobile2.R;
-import edu.mit.mitmobile2.objs.RouteItem;
 import edu.mit.mitmobile2.objs.RouteItem.Stops;
 import edu.mit.mitmobile2.objs.ShuttleSmart_Predicted;
 import edu.mit.mitmobile2.shuttles.ShuttleSmartRouteArrayAdapter.SectionListItemView;
@@ -190,14 +188,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    		 
 	    		adapter.clear();
 
-	    		//Gets route titles.
-				HashMap<String, String> routeTitles = new HashMap<String, String>();
-				for (RouteItem aRouteItem : ShuttleModel.getSortedRoutes()) {
-					routeTitles.put(aRouteItem.route_id, aRouteItem.title);
-				}
-
 				ArrayList<ArrayList<ShuttleSmart_Predicted>> sections = new ArrayList<ArrayList<ShuttleSmart_Predicted>>();
-//				ArrayList<String> stopids = new ArrayList<String>();
 
 	    		// Update
 				ShuttleSmart_Predicted pi;
@@ -205,28 +196,15 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    		for (int x=0; x<m_stops.size(); x++) {
 	    			sections.add(new ArrayList<ShuttleSmart_Predicted>());
 					s = m_stops.get(x);
-	    			
-					//Annoying way to get stop title because it's not provided in http://m.mit.edu/api/shuttles/?command=stopInfo&id=mass84_d
-					RouteItem ri = ShuttleModel.getRoute(s.get(0).route_id);
-					
-					String stop_title = "";
-					for (Stops stop : ri.stops)
-					{
-						if (stop.id.equals(s.get(0).id))
-						{
-							stop_title = stop.title;
-							break;
-						}
-					}
     				
 	    			for (Stops p : s) {
 	    				pi = new ShuttleSmart_Predicted();
 	    				pi.stop_id = p.id;
 	    				pi.route_id = p.route_id;
+	    				pi.route_title = p.route_title;
 	    				pi.predictions = new long[Math.min(p.predictions.size()+1, 3)];
 	    				pi.predictions[0] = p.next;
-	    				pi.route_title = routeTitles.get(pi.route_id);
-	    				pi.stop_title = stop_title;
+	    				pi.stop_title = p.stop_title;
 	    				for (int i=0; i<Math.min(p.predictions.size(),2); i++)
 	    				{
 	    					pi.predictions[i+1] = p.predictions.get(i);

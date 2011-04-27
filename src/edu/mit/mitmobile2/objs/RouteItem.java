@@ -162,6 +162,8 @@ public class RouteItem implements Parcelable {
 		public String route_id;     // needed if not enclosed by RouteItem
 		public String id;
 		public String title;
+		public String stop_title;
+		public String route_title;
 		public String lat;
 		public String lon;
 		public long next;  // next arrival unixtime
@@ -191,6 +193,8 @@ public class RouteItem implements Parcelable {
 			out.writeString(route_id);
 			out.writeString(id);
 			out.writeString(title);
+			out.writeString(route_title);
+			out.writeString(stop_title);
 			out.writeString(lat);
 			out.writeString(lon);
 			out.writeLong(next);
@@ -209,6 +213,8 @@ public class RouteItem implements Parcelable {
 			lat = in.readString();
 			lon = in.readString();
 			next = in.readLong();
+			route_title = in.readString();
+			stop_title = in.readString();
 			
 			predictions = (ArrayList<Integer>) in.readArrayList(Integer.class.getClassLoader());
 			

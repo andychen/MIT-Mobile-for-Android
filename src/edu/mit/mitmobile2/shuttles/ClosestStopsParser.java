@@ -47,7 +47,8 @@ public class ClosestStopsParser extends JSONParser {
 	                	Stops si = new Stops();
 	                	
 	                	si.id = jStop.getString("id");
-	//                	si.title = jStop.getString("title");  // no such?
+	                	si.stop_title = jStop.getString("stop_title");
+	                	si.route_title = jStop.getString("route_title");
 	                	si.lat = jStop.getString("lat");
 	                	si.lon = jStop.getString("lon");
 	                	si.next = jStop.getInt("next");  // TODO long?
