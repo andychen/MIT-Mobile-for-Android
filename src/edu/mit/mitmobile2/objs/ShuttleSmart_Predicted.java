@@ -9,4 +9,7 @@ public class ShuttleSmart_Predicted {
 	
 	public String stop_id;
 	public String stop_title;
+
+	public String direction;
+	public boolean show_dir;
 }

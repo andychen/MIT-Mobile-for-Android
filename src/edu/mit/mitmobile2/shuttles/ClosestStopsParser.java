@@ -22,7 +22,6 @@ public class ClosestStopsParser extends JSONParser {
 	public ClosestStopsParser()
 	{
 		items = new ArrayList<ArrayList<Stops>>();
-		//items = new ArrayList<RouteItem>();
 	}
 
 	/****************************************/
@@ -56,6 +55,7 @@ public class ClosestStopsParser extends JSONParser {
 	
 	                	//si.path = jStop.optJSONArray("path");
 	                	si.direction = jStop.optString("direction");
+	                	si.show_dir = jStop.optBoolean("show_dir");
 	                	si.route_id = jStop.optString("route_id");
 	                	si.gps = jStop.getBoolean("gps");
 	                	

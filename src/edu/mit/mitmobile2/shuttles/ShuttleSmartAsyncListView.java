@@ -83,13 +83,13 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 				{
 					return null;
 				}
-				
 				// Update stops...
 				RoutesParser rparser = new RoutesParser();
 				Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 				csp = new ClosestStopsParser();
 				csp.getJSON(rparser.getBaseUrl()+"?command=locInfo&lat="+location.getLatitude()+"&lon="+location.getLongitude(), true);
 				ArrayList<ArrayList<Stops>> stops = (ArrayList<ArrayList<Stops>>) csp.items;
+				m_stops.clear();
 				for (ArrayList<Stops> x : stops)
 				{
 					for (Stops s : x)
@@ -126,14 +126,11 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 			lb.setLastLoaded(new Date());
 			lb.endLoading();
 			 
-	    	if (csp==null) {
+	    	if (csp==null || csp.items.size() == 0) {
     			Toast.makeText(ctx, MobileWebApi.NETWORK_ERROR, Toast.LENGTH_LONG).show();
     			lb.errorLoading();
 	    	}
-	    	else if (csp.items.size() == 0)
-	    	{
-	    		Toast.makeText(ctx, "No shuttles running right now!", Toast.LENGTH_LONG).show();
-	    	}
+	    	//TODO: Insert no shuttles running toast condition here.
 	    	
 	    	if (!m_stops.isEmpty()) {
 
@@ -161,7 +158,7 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 								text = String.valueOf(l);
 								preds = preds.concat(text+", ");
 							}
-							if (!preds.equals("-1, "))
+							if (!preds.equals("-1, ") & !preds.equals("0, "))
 							{
 								preds = preds.substring(0, preds.length()-2).concat(" min");
 							}
@@ -205,6 +202,8 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    				pi.predictions = new long[Math.min(p.predictions.size()+1, 3)];
 	    				pi.predictions[0] = p.next;
 	    				pi.stop_title = p.stop_title;
+	    				pi.direction = p.direction;
+	    				pi.show_dir = p.show_dir;
 	    				for (int i=0; i<Math.min(p.predictions.size(),2); i++)
 	    				{
 	    					pi.predictions[i+1] = p.predictions.get(i);
@@ -252,8 +251,11 @@ public class ShuttleSmartAsyncListView  extends LinearLayout implements OnItemCl
 	    		smart_sections.addAll(last_sections);
 
 				// Add to adapter...
+	    		String dirInfo;
 				for (ArrayList<ShuttleSmart_Predicted> stop : smart_sections) {
-	    			adapter.addSection(stop.get(0).stop_title, stop);
+		    		dirInfo = "";
+					if (stop.get(0).show_dir) { dirInfo = " (" + stop.get(0).direction + ")"; }
+	    			adapter.addSection(stop.get(0).stop_title + dirInfo, stop);
 	    		}
 				shuttlesmart_stopsLV.setOnItemClickListener(ShuttleSmartAsyncListView.this);
 				shuttlesmart_stopsLV.setVisibility(VISIBLE);

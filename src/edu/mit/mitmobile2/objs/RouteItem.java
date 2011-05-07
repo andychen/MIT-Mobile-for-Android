@@ -169,6 +169,7 @@ public class RouteItem implements Parcelable {
 		public long next;  // next arrival unixtime
 		public ArrayList<Integer> predictions;
 		public String direction;
+		public boolean show_dir;
 		public ArrayList<Loc> path;
 
 		public boolean upcoming = false;
